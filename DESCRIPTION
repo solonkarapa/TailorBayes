@@ -1,0 +1,23 @@
+Package: TailorBayes
+Type: Package
+Title: Markov Chain Monte Carlo for Tailored Bayes
+Version: 0.1.0
+Authors@R: person("Solon", "Karapanagiotis", email = "Solon.karapanagiotis@mrc-bsu.cam.ac.uk",
+  role = c("aut", "cre"))
+Maintainer: The package maintainer <yourself@somewhere.net>
+Description: More about what it does (maybe more than one line)
+    Contains functions to perform Tailored Bayesian inference     using posterior simulation. All models return 'coda' mcmc objects that can then be summarized    using the 'coda' package. 
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.0
+Suggests: 
+    testthat
+Imports: 
+    MASS,
+    dplyr,
+    Rdpack,
+    coda
+RdMacros: Rdpack
+Depends: 
+    R (>= 2.10)
