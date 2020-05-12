@@ -1,4 +1,6 @@
 #'
+#'Metropolis algorithm
+#'
 #' @description
 #' Metropolis algorithm for Tailored Bayesian inference.
 #'

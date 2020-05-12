@@ -2,7 +2,7 @@
 % Please edit documentation in R/metrop.R
 \name{metrop_tailor}
 \alias{metrop_tailor}
-\title{Metropolis Algorithm}
+\title{Metropolis algorithm}
 \usage{
 metrop_tailor(
   formula,
@@ -77,7 +77,7 @@ A list object where the first element \code{chain} is of class "mcmc". This elem
 functions provided by the coda package.
 }
 \description{
-Metropolis Algorithm
+Metropolis algorithm for Tailored Bayesian inference.
 }
 \details{
 \subsection{The Model}

@@ -33,15 +33,11 @@ Calculate the effective sample size for tailoring.
 \details{
 The Effective Sample Size is calculated as follows:
 
- \deqn{ESS_t = \sum_{i=1}{^n} w_i,}
+ \deqn{ESS_t = \frac{\sum_{i=1}{^n} w_i}{n}, }
 
- where \eqn{w_i = \exp - lambda h(pi_u, t)}
+ where \eqn{w_i = \exp - \{ \lambda h(pi_u, t, \epsilon) \} } and \eqn{i = 1, \ldots, n} (the sample size).
 
- and
+ The default function h() is the squared error with \eqn{\epsilon = 0}, i.e
 
- \eqn{i = 1, \ldots, n} (the sample size).
-
- The default function h() is the squared error with epsilon = 0, i.e
-
- \eqn{h(pi_u, t) = (pi_u - t)^2}.
+ \eqn{h(pi_u, t, \epsilon) := (pi_u - t)^2}.
 }
