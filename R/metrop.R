@@ -45,7 +45,7 @@
 #' @param prior_sd The standard deviation for the default Gaussian prior. Default is 1000.
 #'
 #' @param proposal_function The proposal function. The default is \eqn{k}-variate Gaussian,
-#' where \eqn{k} is the length of the parameter vector.
+#' where \eqn{k} is the length of the parameter vector. Future implementation will support more proposals.
 #'
 #' @param ... Optional args.
 #'

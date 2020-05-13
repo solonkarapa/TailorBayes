@@ -68,7 +68,7 @@ This must be a function defined in R. See 'Details'.}
 \item{prior_sd}{The standard deviation for the default Gaussian prior. Default is 1000.}
 
 \item{proposal_function}{The proposal function. The default is \eqn{k}-variate Gaussian,
-where \eqn{k} is the length of the parameter vector.}
+where \eqn{k} is the length of the parameter vector. Future implementation will support more proposals.}
 
 \item{...}{Optional args.}
 }
