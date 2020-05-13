@@ -97,6 +97,7 @@
 #' @references
 #' \insertAllCited{}
 #'
+#'
 # mcmc sampling ---------------------------
 
 metrop_tailor <- function(formula, data, lambda, pi_u, t, distance_measure, epsilon, h_function = NULL,
