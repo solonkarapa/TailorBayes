@@ -52,7 +52,7 @@
 #'
 #' @details
 #'
-#' \subsection{The Model}
+#' \subsection{The Model}{
 #'   A typical predictor has the form response ~ terms where response is the binary
 #'   response vector, denoted \eqn{y}, and terms is a series of terms (denoted \eqn{x})
 #'   which specifies a linear predictor for response.
@@ -79,12 +79,13 @@
 #'   \deqn{\beta \sim \mathcal{N}(0, I\sigma)}{\beta \sim \mathcal{N}(0, I\sigma),}
 #'
 #'   with \eqn{\sigma = 1000}.
+#'   }
 #'
-#' \subsection{Custom \code{h_function} and \code{user_prior_density}}
+#' \subsection{Custom \code{h_function} and \code{user_prior_density}}{
 #'  Both use the function factory pattern \insertCite{@see Chapter 10, @wickham_advanced}{TailorBayes}.
-#'  This is to avoid using either global variables or \dots arguments.
+#'  This is to avoid using either global variables or `\dots` arguments.
 #'  See Examples below and \href{https://cran.r-project.org/web/packages/mcmc/vignettes/demo.pdf}{Geyer, 2020 Appendix A}.
-#'
+#'  }
 #'
 #' @return A list object where the first element \code{chain} is of class "mcmc". This element can be summarized by
 #' functions provided by the coda package.
