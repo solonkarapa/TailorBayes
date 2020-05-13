@@ -91,6 +91,8 @@
 #'
 #' @importFrom Rdpack reprompt
 #'
+#' @export
+#'
 #' @references
 #' \insertAllCited{}
 #'

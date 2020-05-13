@@ -19,6 +19,8 @@
 #'
 #' @return Scalar between 0 and 1.
 #'
+#' @export
+#'
 # calculate ESS_t ---------------------------
 
 ESS_t <- function(lambda, pi_u, t, distance_measure, epsilon, h_function = NULL, ...){

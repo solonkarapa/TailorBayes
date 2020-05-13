@@ -1,6 +1,3 @@
-
-
-
 #' Simulated logistic regression data.
 #'
 #'
@@ -21,5 +18,4 @@
 #' summary(fit)
 #'
 #'
-#' @keyword{datasets}
-#'
+"out"
