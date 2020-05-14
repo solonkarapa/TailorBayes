@@ -15,8 +15,33 @@ knitr::opts_chunk$set(
 
 # TailorBayes
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+<!-- badges: start -->
+[![Build Status](https://travis-ci.org/solonkarapa/TailorBayes.svg?branch=master)](https://travis-ci.org/solonkarapa/TailorBayes)
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+Contains functions to perform Tailored Bayesian inference for binary classification.   Markov Chain Monte Carlo (MCMC) is used to simulate the posterior. The output is a 'coda' mcmc object that can then be summarised using the [coda](https://cran.r-project.org/web/packages/coda/index.html) package. 
 
 ## Installation
+
+```{r, eval = FALSE}
+# Install from GitHub
+devtools::install_github("solonkarapa/TailorBayes")
+```
+
+## Usage
+
+Get started with
+
+```{r, eval = FALSE}
+library(TailorBayes)
+```
+
+The main function of the package is `metrop_tailor()`
+
+```{r, eval = FALSE}
+# Run to see the documentation
+?metrop_tailor
+```
+
+
+
