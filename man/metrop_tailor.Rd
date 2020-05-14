@@ -27,7 +27,7 @@ metrop_tailor(
 )
 }
 \arguments{
-\item{formula}{an object of class "formula"(use link). The details of model specification are given under ‘Details’.}
+\item{formula}{An object of class 'formula'. The details of model specification are given under ‘Details’.}
 
 \item{data}{Data frame.}
 
@@ -77,7 +77,7 @@ A list object where the first element \code{chain} is of class "mcmc". This elem
 functions provided by the coda package.
 }
 \description{
-Metropolis algorithm for Tailored Bayesian inference.
+Random walk Metropolis algorithm for Tailored Bayesian inference.
 }
 \details{
 \subsection{The Model}{

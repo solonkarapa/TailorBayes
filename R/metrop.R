@@ -2,9 +2,9 @@
 #'Metropolis algorithm
 #'
 #' @description
-#' Metropolis algorithm for Tailored Bayesian inference.
+#' Random walk Metropolis algorithm for Tailored Bayesian inference.
 #'
-#' @param formula an object of class "formula"(use link). The details of model specification are given under ‘Details’.
+#' @param formula An object of class 'formula'. The details of model specification are given under ‘Details’.
 #'
 #' @param data Data frame.
 #'
@@ -53,7 +53,7 @@
 #' @details
 #'
 #' \subsection{The Model}{
-#'   A typical predictor has the form response ~ terms where response is the binary
+#'   A typical predictor has the form response ~ terms where response is a binary
 #'   response vector, denoted \eqn{y}, and terms is a series of terms (denoted \eqn{x})
 #'   which specifies a linear predictor for response.
 #'
