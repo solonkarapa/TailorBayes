@@ -2,6 +2,8 @@
 
 library(TailorBayes)
 
+# test for likelihood, prior, posterior
+
 # tolerance level
 tolerance <- 1e-6
 
@@ -27,7 +29,7 @@ prior_normal <- function(prior_mean = 0, prior_sd = 1000)function(param) {
     betas <- sum(dnorm(param, mean = prior_mean, sd = prior_sd, log = TRUE))
     }
 
-# independent Cauchy prior
+# Cauchy prior
 logpriorfun <- function(location, scale)function(param){
     sum(dcauchy(param, location, scale, log = TRUE))
     }

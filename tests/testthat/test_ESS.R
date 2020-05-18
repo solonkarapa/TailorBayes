@@ -1,7 +1,7 @@
 
 # test .... (function)
 
-# test ESS function
+# tests for ESS function
 
 library(TailorBayes)
 
@@ -14,7 +14,7 @@ threshold <- 0.5
 
 # SET 1.1: unspecified h_function ---------------------------
 # distance and epsilon as defaults
-test_that("ESS_t works for different lambdas/default distance and epsilon", {
+test_that("ESS_t works for different lambdas with default distance and epsilon", {
         ESS_test <- function(lambda) ESS_t(lambda, pi_u = p, t = threshold)
 
         expect_equal(ESS_test(0), 1)
@@ -24,8 +24,8 @@ test_that("ESS_t works for different lambdas/default distance and epsilon", {
 })
 
 # SET 1.2: unspecified h_function ---------------------------
-# epsilon as default
-test_that("ESS_t works for different lambdas/default epsilon", {
+# only epsilon as default
+test_that("ESS_t works for different lambdas with default epsilon", {
         ESS_test <- function(lambda) ESS_t(lambda, pi_u = p, t = threshold, distance_measure = "absolute")
 
         expect_equal(ESS_test(0), 1)
@@ -54,7 +54,7 @@ my_h_function <- function(ind) function(pi_u, t){
         }
 }
 
-test_that("ESS_t works for different lambdas/default distance and epsilon", {
+test_that("ESS_t works for different lambdas with custom h_function and default distance and epsilon", {
         ESS_test <- function(lambda) ESS_t(lambda, pi_u = p, t = threshold, h_function = my_h_function(1))
 
         expect_equal(ESS_test(0), 1)
