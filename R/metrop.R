@@ -54,7 +54,7 @@
 #'
 #' \subsection{The Model}{
 #'   A typical predictor has the form response ~ terms where response is a binary
-#'   response vector, denoted \eqn{y}, and terms is a series of terms (denoted \eqn{x})
+#'   response vector (denoted \eqn{y}), and terms is a series of terms (denoted \eqn{x})
 #'   which specifies a linear predictor for response.
 #'
 #'   \code{metrop_tailor()} simulates from the posterior distribution of a tailored logistic regression model

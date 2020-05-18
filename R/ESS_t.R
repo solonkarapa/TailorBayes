@@ -13,7 +13,7 @@
 #'
 #'  where \eqn{w_i = \exp - \{ \lambda h(pi_u, t, \epsilon) \} } and \eqn{i = 1, \ldots, n} (the sample size).
 #'
-#'  The default function h() is the squared error with \eqn{\epsilon = 0}, i.e
+#'  The default function \eqn{h()} is the squared error with \eqn{\epsilon = 0}, i.e
 #'
 #'  \eqn{h(pi_u, t, \epsilon) := (pi_u - t)^2}.
 #'
