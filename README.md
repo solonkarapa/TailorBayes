@@ -7,6 +7,7 @@
 
 [![Build
 Status](https://travis-ci.org/solonkarapa/TailorBayes.svg?branch=master)](https://travis-ci.org/solonkarapa/TailorBayes)
+[![codecov](https://codecov.io/gh/solonkarapa/TailorBayes/branch/master/graph/badge.svg)](https://codecov.io/gh/solonkarapa/TailorBayes)
 
 Contains functions to perform Tailored Bayesian inference for binary
 classification. Markov Chain Monte Carlo (MCMC) is used to simulate the
@@ -35,3 +36,5 @@ The main function of the package is `metrop_tailor()`
 # Run to see the documentation
 ?metrop_tailor
 ```
+
+A vignette will follow soon.
