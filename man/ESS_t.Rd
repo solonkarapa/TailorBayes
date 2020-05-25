@@ -41,3 +41,19 @@ The Effective Sample Size is calculated as follows:
 
  \eqn{h(pi_u, t, \epsilon) := (pi_u - t)^2}.
 }
+\examples{
+data(out)
+set_lambda <- 4
+p <- rbeta(nrow(out), shape1 = 3, shape2 = 7) # simulated probabilities from beta with mean 0.3
+threshold <- 0.3
+
+# ESS using default values of 'distance_measure' and 'epsilon'
+ESS_t(set_lambda, pi_u = p, t = threshold)
+
+# ESS using "asolute" loss as distance measure
+ESS_t(set_lambda, pi_u = p, t = threshold, distance_measure = "absolute")
+
+# ESS using "asolute" loss as distance measure and epsilon-insensitivity param 0.01
+ESS_t(set_lambda, pi_u = p, t = threshold, distance_measure = "absolute", epsilon = 0.01)
+
+}
