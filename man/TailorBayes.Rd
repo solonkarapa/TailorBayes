@@ -3,8 +3,11 @@
 \docType{package}
 \name{TailorBayes}
 \alias{TailorBayes}
-\title{TailorBayes: A package for targeted Bayesian infrerence for binary outcomes when when different
-classification errors incur different penalties.}
+\title{TailorBayes: A package for targeted Bayesian infrerence for binary outcomes}
+\description{
+The package provides functions for tailored Bayesian inference when different classification errors incur
+different penalties.
+}
 \section{TailorBayes functions}{
 
 The main function is \code{metrop_tailor()} which uses random walk MCMC algorithm to sample from the posterior.

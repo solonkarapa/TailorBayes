@@ -150,7 +150,7 @@ summary(posterior$chain)
 
 ## user-defined h_function
 my_h_function <- function(indicator) function(pi_u, t){ # the second function() should always have two args,
-pi_u and t
+#pi_u and t
    if(indicator == 1){
        (pi_u - t)^2 # squared error
    } else {
