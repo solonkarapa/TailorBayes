@@ -90,6 +90,55 @@
 #' @return A list object where the first element \code{chain} is of class "mcmc". This element can be summarized by
 #' functions provided by the coda package.
 #'
+#'
+#' @examples
+#' data(out)
+#' set_lambda <- 0
+#' p <- rep(1, nrow(out))
+#' threshold <- 0.3
+#'
+#' ## default independent normal prior
+#' posterior <- metrop_tailor(y ~ x1 + x2, data = out, lambda = set_lambda, pi_u = p, t = threshold)
+#'
+#' plot(posterior$chain)
+#' summary(posterior$chain)
+#'
+#' ## user-defined independent Cauchy prior
+#' logpriorfun <- function(beta){
+#'     sum(dcauchy(beta, log = TRUE))
+#'     }
+#'
+#' posterior <- metrop_tailor(y ~ x1 + x2, data = out, lambda = set_lambda, pi_u = p, t = threshold,
+#'                           user_prior_density = logpriorfun)
+#'
+#' plot(posterior$chain)
+#' summary(posterior$chain)
+#'
+#' ## user-defined independent Cauchy prior with additional args
+#' logpriorfun <- function(location, scale) function(beta){
+#'    sum(dcauchy(beta, location, scale, log = TRUE))
+#'    }
+#'
+#' posterior <- metrop_tailor(y ~ x1 + x2, data = out, lambda = set_lambda, pi_u = p, t = threshold,
+#'                           user_prior_density = logpriorfun(location = 0, scale = 5))
+#' plot(posterior$chain)
+#' summary(posterior$chain)
+#'
+#' ## user-defined h_function
+#' my_h_function <- function(indicator) function(pi_u, t){ # the second function() should always have two args, pi_u and t
+#'    if(indicator == 1){
+#'        (pi_u - t)^2 # squared error
+#'    } else {
+#'        abs(pi_u - t) # absolute error
+#'    }
+#'}
+#'
+#'posterior <- metrop_tailor(y ~ x1 + x2, data = out, lambda = set_lambda, pi_u = p, t = threshold,
+#'                           h_function = my_h_function(indicator = 2))
+#'
+#' plot(posterior$chain)
+#' summary(posterior$chain)
+#'
 #' @importFrom Rdpack reprompt
 #'
 #' @export
@@ -276,54 +325,6 @@ metrop_tailor <- function(formula, data, lambda, pi_u, t, distance_measure, epsi
     }
 
 
-#' @examples
-#' data(out)
-#' set_lambda <- 0
-#' p <- rep(1, nrow(out))
-#' threshold <- 0.3
-#'
-#' ## default independent normal prior
-#' posterior <- metrop_tailor(y ~ x1 + x2, data = out, lambda = set_lambda, pi_u = p, t = threshold)
-#'
-#' plot(posterior$chain)
-#' summary(posterior$chain)
-#'
-#' ## user-defined independent Cauchy prior
-#' logpriorfun <- function(beta){
-#'     sum(dcauchy(beta, log = TRUE))
-#'     }
-#'
-#' posterior <- metrop_tailor(y ~ x1 + x2, data = out, lambda = set_lambda, pi_u = p, t = threshold,
-#'                           user_prior_density = logpriorfun)
-#'
-#' plot(posterior$chain)
-#' summary(posterior$chain)
-#'
-#' ## user-defined independent Cauchy prior with additional args
-#' logpriorfun <- function(location, scale) function(beta){
-#'    sum(dcauchy(beta, location, scale, log = TRUE))
-#'    }
-#'
-#' posterior <- metrop_tailor(y ~ x1 + x2, data = out, lambda = set_lambda, pi_u = p, t = threshold,
-#'                           user_prior_density = logpriorfun(location = 0, scale = 5))
-#' plot(posterior$chain)
-#' summary(posterior$chain)
-#'
-#' ## user-defined h_function
-#' my_h_function <- function(indicator) function(pi_u, t){ # the second function() should always have two args, pi_u and t
-#'    if(indicator == 1){
-#'        (pi_u - t)^2 # squared error
-#'    } else {
-#'        abs(pi_u - t) # absolute error
-#'    }
-#'}
-#'
-#'posterior <- metrop_tailor(y ~ x1 + x2, data = out, lambda = set_lambda, pi_u = p, t = threshold,
-#'                           h_function = my_h_function(indicator = 2))
-#'
-#' plot(posterior$chain)
-#' summary(posterior$chain)
-#'
 
 
 
