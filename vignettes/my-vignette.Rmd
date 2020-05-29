@@ -1,0 +1,90 @@
+---
+title: "Introduction to TailorBayes"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{my-vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(TailorBayes)
+```
+
+# Introduction 
+
+The package provides functions for tailored Bayesian (TB) modelling, a simple and widely applicable approach to incorporate misclassification costs into Bayesian inference.
+
+Routinely, binary classifiers aim to minimise the expected classification error; that is the proportion of incorrect classifications.
+
+The disadvantage of this paradigm is to implicitly assume that all misclassification
+errors have equal costs. However, equality is but one choice, which may be rarely appropriate. 
+
+For example, in cancer diagnosis, a false negative (that is, misdiagnosing a cancer patient as healthy) could have more severe consequences than a false positive (that is, misdiagnosing a healthy patient with cancer); the latter may lead to extra medical costs and unnecessary patient anxiety but will not result in loss of life. 
+
+Add another example, eg bank 
+
+For these applications, a prioritised control of asymmetric classification errors is
+more appropriate.
+
+Tailor Bayes (TB), allows for the incorporatnio of 
+misclassifcation cocts into Bayesina modelling. In a nutshell, this is done by 
+intorducing datapoint-specific weights and 
+we use these weights to downweighting each datapoint's likelihood contribution when fitting the model.
+
+
+# The model
+
+We utilise data $D = \{ (y_i, x_i)  :i=  1, \dots, n \}$ $(X, Y) \in \mathbb{R}^d \times \{0, 1\}$ where $y_i$ is the binary outcome variable indicating the class to which the $i^{th}$ observation belongs and $x_i$ is the vector of covariates of size $d$. The same notation is used interchangeably for scalar and vector-valued quantities. 
+
+We use a generalised version of the logistic loss 
+
+\begin{equation}
+   \ell(y_i, x^T_i \beta) = -(\pi_w(x_i;\beta))^{y_i} (1- \pi_w(x_i;\beta))^{1-y_i},
+   \label{hand_loss}
+\end{equation}
+
+where $\pi_w(x_i;\beta)=  (\exp \{ {x^T_i \beta} \}/ 1 + \exp\{ {x^T_i \beta}\})^{w_i}$ and $w_i \in[0,1]$ are datapoint-specific weights. We recover the standard logistic loss by setting $w_i = 1$ for all $i = 1, \dots ,n$. Note that we specify a linear function, ie $x^T_i \beta$, where $\beta$ is a $d + 1$ dimensional vector of regression coefficients. Hence, our objective is to learn $\beta$.
+
+We set the datapoint-specific weights as 
+
+\begin{equation}
+    w_i = \exp \big \{-\lambda h(\pi_u(x_i), t) \big \} = \exp \big \{-\lambda (\pi_u(x_i) - t)^2 \big \},
+    \label{weights}
+\end{equation}
+
+where $h$ is the quadratic loss (this is the default option, other options discussed later), $\pi_u(x_i)$ is the unweighted version of $\pi_w(x_i;\beta)$, and $t$ is the target threshold that summarises the the costs and benefits of (mis-)classifications. Using this formulation the weights decrease with increasing distance from the target threshold. The hyperparameter $\lambda \ge 0$ is a "discounting factor" that controls the rate of that decrease.  For $\lambda = 0$  we recover the standard logistic regression model. 
+
+To costruct the weights we need to specify the following ingredients: 
+
+- t. 
+
+- $\lambda$. We recommend using cross-validtion. 
+
+- $\pi_u(x_i)$. We achieve this by a two-stage procedure. First, the distance is measured using an estimate of u(xi), ^u(xi), which
+can be compared with t to yield weights. This estimate could be based on any classification
+method: we use standard unweighted Bayesian logistic regression in the analysis or any other classifiers that output probability estimates. 
+
+To finish the formulation of the model we assume indepedent normal prior distribution for each element
+of $\beta$, ie. p(\beta_j) = \mathcal{N}(0, 1000).
+
+The TB posterior is proportional to
+
+$$p(\beta|D) \propto -\sum_{i=1}^{n} log(\ell(y_i, x^T_i \beta)) p(\beta).$$
+Since this posterior is not analytically tractable, we use Markov Chain Monte Carlo (MCMC) for inference of the model conditioned on data $D$, using the `metrop_tailor()` function. 
+
+# `metrop_tailor()`
+This is the main function 
+
+At a high level, it needs as input the data and the ingredients for the cosntruction of the weights,
+
+
+
+
