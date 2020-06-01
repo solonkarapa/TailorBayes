@@ -99,6 +99,7 @@ data <- data.frame(y  = y, x1 = x1, x2 = x2)
 
 ```{r}
 # split into design and train
+#install.packages("splitstackshape")
 library(splitstackshape)
 data_split <- stratified(data, group = "y", size = 0.2, bothSets = T)
 
