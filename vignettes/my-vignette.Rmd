@@ -34,8 +34,8 @@ Add another example, eg bank
 For these applications, a prioritised control of asymmetric classification errors is
 more appropriate.
 
-Tailor Bayes (TB), allows for the incorporatnio of 
-misclassifcation cocts into Bayesina modelling. In a nutshell, this is done by 
+Tailor Bayes (TB), allows for the incorporation of 
+misclassifcation cocts into Bayesian modelling. In a nutshell, this is done by 
 intorducing datapoint-specific weights and 
 we use these weights to downweighting each datapoint's likelihood contribution when fitting the model.
 
@@ -64,26 +64,146 @@ where $h$ is the quadratic loss (this is the default option, other options discu
 
 To costruct the weights we need to specify the following ingredients: 
 
-- t. 
+- $t$,  
 
 - $\lambda$. We recommend using cross-validtion. 
 
-- $\pi_u(x_i)$. We achieve this by a two-stage procedure. First, the distance is measured using an estimate of u(xi), ^u(xi), which
-can be compared with t to yield weights. This estimate could be based on any classification
+- $\pi_u(x_i)$. We achieve this by a two-stage procedure. First, the distance is measured using an estimate of $\pi_u(x_i)$, $\hat{\pi}_u(x_i)$, which
+can be compared with $t$ to yield weights. This estimate could be based on any classification
 method: we use standard unweighted Bayesian logistic regression in the analysis or any other classifiers that output probability estimates. 
 
-To finish the formulation of the model we assume indepedent normal prior distribution for each element
-of $\beta$, ie. p(\beta_j) = \mathcal{N}(0, 1000).
+To finish the formulation of the model we assume indepedent normal prior distribution for each element of $\beta$, ie. $p(\beta) = \mathcal{N}(0, \sigma^2I)$.
 
 The TB posterior is proportional to
 
 $$p(\beta|D) \propto -\sum_{i=1}^{n} log(\ell(y_i, x^T_i \beta)) p(\beta).$$
 Since this posterior is not analytically tractable, we use Markov Chain Monte Carlo (MCMC) for inference of the model conditioned on data $D$, using the `metrop_tailor()` function. 
 
+# Data
+
+```{r}
+n <- 200
+rho <- 0.5
+beta0 <- 0.25
+beta1 <- 1
+beta2 <- 0.5
+
+x1 <- rnorm(n)
+x2 <- rho * x1 + sqrt(1 - rho ^ 2) * rnorm(n)
+eta <- beta0 + beta1 * x1 + beta2 * x2
+p <- 1 / (1 + exp(- eta))
+y <- as.numeric(runif(n) < p)
+
+data <- data.frame(y  = y, x1 = x1, x2 = x2)
+```
+
+```{r}
+# split into design and train
+library(splitstackshape)
+data_split <- stratified(data, group = "y", size = 0.2, bothSets = T)
+
+data_design <- data_split$SAMP1
+data_train <- data_split$SAMP2
+```
+
 # `metrop_tailor()`
 This is the main function 
 
 At a high level, it needs as input the data and the ingredients for the cosntruction of the weights,
+
+
+
+First, we will use 20% of the data to estimate $\pi_u(x_i)$. I use frequentist logistic regression for this. 
+
+```{r}
+fit <- glm(y ~ x1 + x2, family = binomial("logit"))
+pred <- predict(fit, newdata = data_train, type = "response")
+```
+
+Then, we can use CV to find a good $\lambda$ value. I skip this step here. The value pf $t$ needs to set as well. I use $t = 0.3$ here. 
+
+```{r}
+fit_tailor <- metrop_tailor(y ~ x1 + x2, data = data_train, lambda = 10, pi_u = pred, t = 0.3)
+```
+
+Now, `fit_tailor` is a list object, where the first element, `chain` is of class "mcmc". This element can be summarized by functions provided by the [coda](https://cran.r-project.org/web/packages/coda/index.html) package.
+
+For istnace, we can plot  daignostic sucha as traceplots.
+```{r}
+library(coda)
+traceplot(fit_tailor$chain)
+```
+
+# Customisation 
+
+The package allows for flexibility on the construction of the weights, $w_i$ and the specifiction of the prior density. 
+
+## Custom weights
+The construction weights is controlled by the `distance_measure` and `espilon` arguments. Together they allow the specification of a family of weigthing functions, termed $\epsilon$-insensitive functions \cite{vapnik1998statistical}. The family is defined as
+
+$$ h(\pi_u(x), t, \epsilon) = (\pi_u(x) - t)^2_{\epsilon}$$
+
+where we denote 
+\begin{equation}
+ (\pi_u(x) - t)^2_{\epsilon} = 
+  \begin{cases} 
+   0 		& \text{if } (\pi_u(x) - t)^2 \leq \epsilon \\
+   (\pi_u(x) - t)	- \epsilon	& \text{otherwise }   
+  \end{cases}
+\label{epsilon_insensitive}
+\end{equation}
+
+This is the $\epsilon$-insensitive squared loss. 
+The $\epsilon$-insensitivity  arises  from  the  fact  that  the  loss  is  equal  to  0  if  the  discrepancy  between  the predicted  probability $\pi_u(x)$  and  the  target  threshold $t$ is  less  than $\epsilon$.   In  other  words,  we  do  not  careabout the distance as long as it is less than $\epsilon$,  but will not accept any deviation larger than this. 
+
+Another option is to choose the $\epsilon$-insensitive ablssoute loss (`distance_measure = "absolute"`), defined as 
+
+$$ h(\pi_u(x), t, \epsilon) = |\pi_u(x) - t|_{\epsilon} $$
+
+The default is the squared loss with $\epsilon = 0$, i.e
+$h(\pi_u(x), t, \epsilon) = (\pi_u(x) - t)^2$. 
+
+### Further customisation
+In addtion, the user can define an arbitrary weigthing function, $h$. This is done with using the `h_function` argument. 
+
+An example is given below. For illustration purposes, we simply re-define the square and absolute losses. 
+
+In order to avoid using either global variables or $\dots$ arguments, we use the function factory pattern (refs). This is a robust way to pass information to a function being
+passed to another R function (a higher-order function), for example when
+the function being passed is the weighting function for a
+simulation done by the higher-order function, which simulates the distribution having that using that  weighting function (R function `metrop_tailor()` in this package for example). 
+We define the custom weighting function as 
+
+```{r}
+my_h_function <- function(indicator) function(pi_u, t){
+    if(indicator == 1){
+        (pi_u - t) ^ 2
+    } else {
+        abs(pi_u - t)
+    }
+}
+```
+
+This allows more flexibilty since the user can specify any number of extra arguments in the fist function call. The second should always be as specified above. 
+The user then simply uses the `h_function` argument of `metrop_tailor()`, specifying any additional arguments as well. Uisng my custom funciton, I want to implement the sqare loss, so I need to specify `indicator = 1` 
+
+```{r}
+fit_tailor_h_function <- metrop_tailor(y ~ x1 + x2, data = data_train, lambda = 10, pi_u = pred, t = 0.3, h_function = my_h_function(indicator = 1))
+```
+
+In case there no extra arguments, we can define the weigthing fucntion as 
+
+```{r}
+my_h_function_2 <- function() function(pi_u, t){
+  (pi_u - t) ^ 2
+  }
+```
+
+```{r}
+fit_tailor_h_function_2 <- metrop_tailor(y ~ x1 + x2, data = data_train, lambda = 10, pi_u = pred, t = 0.3, h_function = my_h_function_2())
+```
+
+## Custom prior
 
 
 
