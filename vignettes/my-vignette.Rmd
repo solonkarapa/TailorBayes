@@ -1,5 +1,6 @@
 ---
 title: "Introduction to TailorBayes"
+bibliography: /Users/skarapanagiotis/Box/PhD/Code/Tailored_Bayes/TailorBayes/inst/references.bib
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{my-vignette}
@@ -17,6 +18,8 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(TailorBayes)
 ```
+
+\marginnote{This document refers to ggmcmc version `r packageVersion("TailorBayes")`.}
 
 # Introduction 
 
@@ -72,12 +75,10 @@ To costruct the weights we need to specify the following ingredients:
 can be compared with $t$ to yield weights. This estimate could be based on any classification
 method: we use standard unweighted Bayesian logistic regression in the analysis or any other classifiers that output probability estimates. 
 
-To finish the formulation of the model we assume indepedent normal prior distribution for each element of $\beta$, ie. $p(\beta) = \mathcal{N}(0, \sigma^2I)$.
-
-The TB posterior is proportional to
+To finish the formulation of the model we assume indepedent normal prior distribution for each element of $\beta$, ie. $p(\beta) = \mathcal{N}(0, \sigma^2I)$. The TB posterior is proportional to
 
 $$p(\beta|D) \propto -\sum_{i=1}^{n} log(\ell(y_i, x^T_i \beta)) p(\beta).$$
-Since this posterior is not analytically tractable, we use Markov Chain Monte Carlo (MCMC) for inference of the model conditioned on data $D$, using the `metrop_tailor()` function. 
+Since this posterior is not analytically tractable, we use Markov Chain Monte Carlo (MCMC) for inference, using the `metrop_tailor()` function. 
 
 # Data
 
@@ -110,6 +111,8 @@ data_train <- data_split$SAMP2
 # `metrop_tailor()`
 This is the main function 
 
+random walk MCMMC
+
 At a high level, it needs as input the data and the ingredients for the cosntruction of the weights,
 
 
@@ -127,9 +130,9 @@ Then, we can use CV to find a good $\lambda$ value. I skip this step here. The v
 fit_tailor <- metrop_tailor(y ~ x1 + x2, data = data_train, lambda = 10, pi_u = pred, t = 0.3)
 ```
 
-Now, `fit_tailor` is a list object, where the first element, `chain` is of class "mcmc". This element can be summarized by functions provided by the [coda](https://cran.r-project.org/web/packages/coda/index.html) package.
+Now, `fit_tailor` is a list object, where the first element, `chain` is of class "mcmc". This element can be summarized by functions provided by the [coda](https://cran.r-project.org/web/packages/coda/index.html) package or similar ones, such as [ggmcmc](https://cran.r-project.org/web/packages/ggmcmc/ggmcmc.pdf) [@Xavier2016]. 
 
-For istnace, we can plot  daignostic sucha as traceplots.
+For instance, we can plot  daignostic sucha as traceplots.
 ```{r}
 library(coda)
 traceplot(fit_tailor$chain)
@@ -169,7 +172,8 @@ In addtion, the user can define an arbitrary weigthing function, $h$. This is do
 
 An example is given below. For illustration purposes, we simply re-define the square and absolute losses. 
 
-In order to avoid using either global variables or $\dots$ arguments, we use the function factory pattern (refs). This is a robust way to pass information to a function being
+In order to avoid using either global variables or $\dots$ arguments, we use the function factory pattern (Chapter 10, @wickham_advanced), and [Geyer, 2020 Appendix A](https://cran.r-project.org/web/packages/mcmc/vignettes/demo.pdf). 
+This is a robust way to pass information to a function being
 passed to another R function (a higher-order function), for example when
 the function being passed is the weighting function for a
 simulation done by the higher-order function, which simulates the distribution having that using that  weighting function (R function `metrop_tailor()` in this package for example). 
@@ -205,7 +209,42 @@ fit_tailor_h_function_2 <- metrop_tailor(y ~ x1 + x2, data = data_train, lambda 
 ```
 
 ## Custom prior
+As described above the default prior for $\beta$ is indepedent normal prior distribution, ie. $p(\beta) = \mathcal{N}(\mu, \sigma^2I)$, with default values $\mu = 0$ and $\sigma = 1000$. 
+
+The user can set the mean and standard deviation, using the `prior_mean` and `prior_sd` arguments of `metrop_tailor()`. 
+
+In addition, the user can specify any prior desnity using the `user_prior_density` argument. 
+If non-NULL, the prior (log)density up to a constant of proportionality. This
+must be a function defined in R.  
+
+```{r}
+ ## user-defined independent Cauchy prior
+logpriorfun <- function(beta){
+     sum(dcauchy(beta, log = TRUE))
+}
+
+fit_tailor_cauchy_1 <- metrop_tailor(y ~ x1 + x2, data = data_train, lambda = 10, pi_u = pred, t = 0.3, user_prior_density = logpriorfun)
+```
+
+It follows the same function factory idea as above. This means 
+
+```{r}
+## user-defined independent Cauchy prior with additional args
+ logpriorfun <- function(location, scale) function(beta){
+    sum(dcauchy(beta, location, scale, log = TRUE))
+ }
+
+fit_tailor_cauchy_2 <- metrop_tailor(y ~ x1 + x2, data = data_train, lambda = 10, pi_u = pred, t = 0.3,  user_prior_density = logpriorfun(location = 0, scale = 5))
+```
 
 
+```{r}
+library(ggmcmc)
+library(purrr)
+combined <- list(fit_tailor_cauchy_1$chain, fit_tailor_cauchy_2$chain)
+ggs_obj_convert <- map(combined, ggs)
+names(ggs_obj_convert) <- c("Cauchy prior", "Cauchy prior additional args")
+ggs_caterpillar(ggs_obj_convert)
+```
 
-
+# References

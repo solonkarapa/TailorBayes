@@ -74,7 +74,8 @@ where \eqn{k} is the length of the parameter vector. Future implementation will 
 }
 \value{
 A list object where the first element \code{chain} is of class "mcmc". This element can be summarized by
-functions provided by the coda package.
+functions provided by the \href{https://cran.r-project.org/web/packages/coda/coda.pdf}{coda} package,
+or similar ones, such as \href{https://cran.r-project.org/web/packages/ggmcmc/ggmcmc.pdf)}{ggmcmc}.
 }
 \description{
 Random walk Metropolis algorithm for Tailored Bayesian inference.

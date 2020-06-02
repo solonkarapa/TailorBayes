@@ -21,7 +21,9 @@ Imports:
     MASS,
     dplyr,
     Rdpack,
-    coda
+    coda,
+    ggmcmc,
+    purrr	
 RdMacros: Rdpack
 Depends: 
     R (>= 2.10)
