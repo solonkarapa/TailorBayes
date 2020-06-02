@@ -1,6 +1,6 @@
 ---
 title: "Introduction to TailorBayes"
-bibliography: /Users/skarapanagiotis/Box/PhD/Code/Tailored_Bayes/TailorBayes/inst/references.bib
+bibliography: ./references_vignette.bib
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{my-vignette}
@@ -143,7 +143,7 @@ traceplot(fit_tailor$chain)
 The package allows for flexibility on the construction of the weights, $w_i$ and the specifiction of the prior density. 
 
 ## Custom weights
-The construction weights is controlled by the `distance_measure` and `espilon` arguments. Together they allow the specification of a family of weigthing functions, termed $\epsilon$-insensitive functions \cite{vapnik1998statistical}. The family is defined as
+The construction weights is controlled by the `distance_measure` and `espilon` arguments. Together they allow the specification of a family of weigthing functions, termed $\epsilon$-insensitive functions [@vapnik1998statistical]. The family is defined as
 
 $$ h(\pi_u(x), t, \epsilon) = (\pi_u(x) - t)^2_{\epsilon}$$
 
