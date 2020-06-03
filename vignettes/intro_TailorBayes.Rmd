@@ -1,0 +1,260 @@
+---
+title: "Introduction to TailorBayes"
+bibliography: ./references_vignette.bib
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{my-vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This document refers to TailorBayes version `r packageVersion("TailorBayes")`.
+
+# Introduction 
+
+The package provides functions for tailored Bayesian modelling, a simple and widely applicable approach to incorporate misclassification costs into Bayesian inference. 
+
+Routinely, binary classifiers aim to minimise the expected classification error; that is the proportion of incorrect classifications. The disadvantage of this paradigm is to implicitly assume that all misclassification errors have equal costs. However, equality is but one choice, which may not be  appropriate. For example, in cancer diagnosis, a false negative (that is, misdiagnosing a cancer patient as healthy) could have more severe consequences than a false positive (that is, misdiagnosing a healthy patient with cancer); the latter may lead to extra medical costs and unnecessary patient anxiety but will not result in loss of life. On the contrary, in banking, a false positive (that is, giving a loan to a non-paying customer) has more severe consequences that a false negative (that is, refusing to give a loan to a paying customer); the latter will lead to a smaller loss of income (in terms of interest gained) but will the former will results in bigger loss (the loan amount plus the interest). For these applications, a prioritised control of asymmetric classification errors is more appropriate.
+
+Tailor Bayes (TB), allows for the incorporation of misclassifcation costs into Bayesian modelling. In a nutshell, this is done by introducing datapoint-specific weights which are used to downweight each datapoint's likelihood contribution when fitting the model.
+
+
+# The model
+
+We utilise data $D = \{ (y_i, x_i)  :i=  1, \dots, n \}$ $(X, Y) \in \mathbb{R}^d \times \{0, 1\}$ where $y_i$ is the binary outcome variable indicating the class to which the $i^{th}$ observation belongs and $x_i$ is the vector of covariates of size $d$. The same notation is used interchangeably for scalar and vector-valued quantities. 
+
+We use a generalised version of the logistic loss 
+
+\begin{equation}
+   \ell(y_i, x^T_i \beta) = -(\pi_w(x_i;\beta))^{y_i} (1- \pi_w(x_i;\beta))^{1-y_i},
+   \label{hand_loss}
+\end{equation}
+
+where $\pi_w(x_i;\beta)=  (\exp \{ {x^T_i \beta} \}/ 1 + \exp\{ {x^T_i \beta}\})^{w_i}$ and $w_i \in[0,1]$ are datapoint-specific weights. We recover the standard logistic loss by setting $w_i = 1$ for all $i = 1, \dots ,n$. Note that we specify a linear function, ie $x^T_i \beta$, where $\beta$ is a $d + 1$ dimensional vector of regression coefficients. Hence, our objective is to learn $\beta$.
+
+We set the datapoint-specific weights as 
+
+\begin{equation}
+    w_i = \exp \big \{-\lambda h(\pi_u(x_i), t) \big \} = \exp \big \{-\lambda (\pi_u(x_i) - t)^2 \big \},
+    \label{weights}
+\end{equation}
+
+where $h$ is the quadratic loss (this is the default option, other options discussed later), $\pi_u(x_i)$ is the unweighted version of $\pi_w(x_i;\beta)$. Using this formulation the weights decrease with increasing distance from the target threshold. The hyperparameter $\lambda \ge 0$ is a "discounting factor" that controls the rate of that decrease. For $\lambda = 0$  we recover the standard logistic regression model. The target threshold, $t$ summarises the the costs and benefits of (mis-)classifications
+
+> Briefly, let $U$ denote an utility function that assigns a value to  each  of  the  four  possible  classifications  stating  exactly  how beneficial/costly each classification is. The four utilities associated with binary classification problems are: $U_{TP}$, $U_{FP}$, $U_{FN}$, $U_{TN}$ which are the utilities of a true positive, false positive, false negative and true negative prediction, respectively. We then define the target threshold, $t$ as:  
+
+\begin{equation}
+    \begin{split}
+    t = \frac{U_{TN} - U_{FP}}{U_{TN} - U_{FP} + U_{TP} - U_{FN}}
+        \label{target_threshold}
+    \end{split}
+\end{equation}  
+
+> This equation therefore tells us that the target threshold is informative of how the relative harms of false positive and false negative results are weighted. It captures the relative cost of false positives  and  false  negatives  without having to explicitly specify them.
+
+To costruct the weights we need to specify the following ingredients: 
+
+- $t$, this depends on the decision maker’s preferences with respect to the relative costs of different misclassification errors. 
+
+- $\lambda$. We recommend using cross-validation (CV). 
+
+- $\pi_u(x_i)$. We achieve this by a two-stage procedure. First, the distance is measured using an estimate of $\pi_u(x_i)$, $\hat{\pi}_u(x_i)$, which
+can be compared with $t$ to yield weights. This estimate could be based on any classification
+method: we use standard unweighted frequentist logistic regression below but any other classifiers that output probability estimates will do. 
+
+To finish the formulation of the model we assume independent normal prior distribution for each element of $\beta$, ie. $p(\beta) = \mathcal{N}(\mu, \sigma^2I)$. Then, the TB posterior is proportional to
+
+$$p(\beta|D) \propto -\sum_{i=1}^{n} log(\ell(y_i, x^T_i \beta)) p(\beta).$$
+Since this posterior is not analytically tractable, we use Markov Chain Monte Carlo (MCMC) for inference, using the `metrop_tailor()` function. 
+
+# Data
+
+We first simulate a toy dataset, with two predictors $x_1$ and $x_2$. 
+
+```{r}
+n <- 200 # the sample size
+rho <- 0.5 
+beta0 <- 0.25
+beta1 <- 1
+beta2 <- 0.5
+
+x1 <- rnorm(n)
+x2 <- rho * x1 + sqrt(1 - rho ^ 2) * rnorm(n)
+eta <- beta0 + beta1 * x1 + beta2 * x2
+p <- 1 / (1 + exp(- eta))
+y <- as.numeric(runif(n) < p)
+
+data <- data.frame(y  = y, x1 = x1, x2 = x2)
+```
+
+And proceed splitting the data into design (20%) and train (80%). The design set is used to estimate $\pi_u(x_i)$ and the train set to fit the model. 
+
+```{r}
+# split into design and train
+library(splitstackshape)
+data_split <- stratified(data, group = "y", size = 0.2, bothSets = T)
+
+data_design <- data_split$SAMP1
+data_train <- data_split$SAMP2
+```
+
+# `metrop_tailor()`
+This is the main function of the package. It implements a random walk MCMC to sample from the TB posterior [@brooks2011handbook]. At a high level, the function needs as input the data and the ingredients for the construction of the weights (bullet points above).
+
+```{r setup}
+library(TailorBayes)
+```
+
+First, we will use the design data to estimate $\pi_u(x_i)$. I use frequentist logistic regression for this. 
+
+```{r}
+# fit the model
+fit <- glm(y ~ x1 + x2, family = binomial("logit"))
+# create predictions on the train set 
+pred <- predict(fit, newdata = data_train, type = "response")
+```
+
+Then, we can use CV to find a good $\lambda$ value. I skip this step here, and use $lambda = 10$. The value of $t$ needs to set as well. I use $t = 0.3$ here. 
+
+```{r}
+fit_tailor <- metrop_tailor(y ~ x1 + x2, data = data_train, lambda = 10, pi_u = pred, t = 0.3)
+```
+
+Now, `fit_tailor` is a list object, where the first element, `chain` is of class "mcmc". This element can be summarized by functions provided by the [coda](https://cran.r-project.org/web/packages/coda/index.html) package or similar ones, such as [ggmcmc](https://cran.r-project.org/web/packages/ggmcmc/ggmcmc.pdf) [@Xavier2016]. 
+
+For instance, we can plot diagnostic such as traceplots
+
+```{r}
+library(coda)
+traceplot(fit_tailor$chain)
+```
+
+# Customisation 
+
+The package allows for flexibility on the construction of the weights, $w_i$, and the specification of the prior density. 
+
+## Custom weights
+
+The construction weights is controlled by the `distance_measure` and `epsilon` arguments. Together they allow the specification of a family of weighting functions, termed $\epsilon$-insensitive functions [@vapnik1998statistical]. The family is defined as
+
+$$ h(\pi_u(x), t, \epsilon) = (\pi_u(x) - t)^2_{\epsilon}$$
+
+where we denote 
+\begin{equation}
+ (\pi_u(x) - t)^2_{\epsilon} = 
+  \begin{cases} 
+   0 		& \text{if } (\pi_u(x) - t)^2 \leq \epsilon \\
+   (\pi_u(x) - t)^2	- \epsilon	& \text{otherwise }   
+  \end{cases}
+\label{epsilon_insensitive}
+\end{equation}
+
+This is the $\epsilon$-insensitive squared loss. 
+The $\epsilon$-insensitivity  arises  from  the  fact  that  the  loss  is  equal  to  0  if  the  discrepancy  between  the predicted  probability $\pi_u(x)$  and  the  target  threshold $t$ is  less  than $\epsilon$.   In  other  words,  we  do  not  care about the distance as long as it is less than $\epsilon$,  but will not accept any deviation larger than this. 
+
+Another option is to choose the $\epsilon$-insensitive absolute loss (`distance_measure = "absolute"`), defined as 
+
+$$ h(\pi_u(x), t, \epsilon) = |\pi_u(x) - t|_{\epsilon} $$
+
+The default is the squared loss with $\epsilon = 0$, i.e
+$h(\pi_u(x), t, \epsilon) = (\pi_u(x) - t)^2$. 
+
+### Further customisation
+
+In addition, the user can define an arbitrary weighting function, $h$. This is done with using the `h_function` argument. An example is given below. For illustration purposes, we simply re-define the square and absolute losses. 
+
+In order to avoid using either global variables or $\dots$ arguments, we use the function factory pattern (Chapter 10, @wickham_advanced, and [Geyer, 2020 Appendix A](https://cran.r-project.org/web/packages/mcmc/vignettes/demo.pdf)). This is a robust way to pass information to a function being passed to another R function (a higher-order function). In our case, we want to pass information to the weighting function which subsequently will be used by 
+`metrop_tailor()` (the higher-order function) when sampling from the  posterior. We can define the custom weighting function as 
+
+```{r}
+my_h_function <- function(indicator) function(pi_u, t){
+    if(indicator == 1){
+        (pi_u - t) ^ 2
+    } else {
+        abs(pi_u - t)
+    }
+}
+```
+
+This allows more flexibility since the user can specify any number of extra arguments in the fist function call. The second should always be as specified above. 
+The user then simply uses the `h_function` argument of `metrop_tailor()`, specifying any additional arguments as well. For instance,  
+
+```{r}
+fit_tailor_h_function <- metrop_tailor(y ~ x1 + x2, 
+                                       data = data_train, 
+                                       lambda = 10, pi_u = pred, t = 0.3, 
+                                       h_function = my_h_function(indicator = 1))
+```
+
+In case there no extra arguments, we can define the weighting function as 
+
+```{r}
+my_h_function_2 <- function() function(pi_u, t){
+  (pi_u - t) ^ 2
+  }
+```
+
+```{r}
+fit_tailor_h_function_2 <- metrop_tailor(y ~ x1 + x2, 
+                                         data = data_train, 
+                                         lambda = 10, pi_u = pred, t = 0.3, 
+                                         h_function = my_h_function_2())
+```
+
+## Custom prior
+
+As described above the default prior for $\beta$ is independent normal prior distribution, ie. $p(\beta) = \mathcal{N}(\mu, \sigma^2I)$, with default values $\mu = 0$ and $\sigma = 1000$. The user can set the mean and standard deviation, using the `prior_mean` and `prior_sd` arguments of `metrop_tailor()`. 
+
+In addition, the user can specify any prior density using the `user_prior_density` argument. 
+If non-NULL, the prior (log)density up to a constant of proportionality needs to specified. This
+must be a function defined in R.  
+
+```{r}
+ ## user-defined independent Cauchy prior
+logpriorfun <- function(beta){
+     sum(dcauchy(beta, log = TRUE))
+}
+
+fit_tailor_cauchy_1 <- metrop_tailor(y ~ x1 + x2, 
+                                     data = data_train, 
+                                     lambda = 10, pi_u = pred, t = 0.3, 
+                                     user_prior_density = logpriorfun)
+```
+
+It follows the same function factory idea as above. For instance, a Cauchy prior with extra arguments can be set as 
+
+```{r}
+## user-defined independent Cauchy prior with additional args
+ logpriorfun <- function(location, scale) function(beta){
+    sum(dcauchy(beta, location, scale, log = TRUE))
+ }
+
+fit_tailor_cauchy_2 <- metrop_tailor(y ~ x1 + x2, 
+                                     data = data_train, 
+                                     lambda = 10, pi_u = pred, t = 0.3,  
+                                     user_prior_density = logpriorfun(location = 0, scale = 5))
+```
+
+To see the difference between the two posteriors, I use the [ggmcmc](https://cran.r-project.org/web/packages/ggmcmc/ggmcmc.pdf) package for post-processing. The plot shows the highest posterior density interval for each parameter under the two priors. 
+
+```{r, warning=F, message=F}
+library(ggmcmc)
+library(purrr)
+# combine the chains 
+combined <- list(fit_tailor_cauchy_1$chain, fit_tailor_cauchy_2$chain)
+# convert them into `ggs` objects, to use the functions of 'ggmcmc' 
+ggs_obj_convert <- map(combined, ggs)
+# add informative names
+names(ggs_obj_convert) <- c("Cauchy prior", "Cauchy prior additional args")
+# caterpillar plot
+ggs_caterpillar(ggs_obj_convert)
+```
+
+# References

@@ -37,4 +37,4 @@ The main function of the package is `metrop_tailor()`
 ?metrop_tailor
 ```
 
-A vignette will follow soon.
+A vignette
