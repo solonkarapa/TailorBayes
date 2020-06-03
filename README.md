@@ -33,8 +33,13 @@ library(TailorBayes)
 The main function of the package is `metrop_tailor()`
 
 ``` r
-# Run to see the documentation
+# Run to see the function documentation
 ?metrop_tailor
 ```
 
-A vignette
+A vignette on using the package
+
+``` r
+# Run to see the vignette
+browseVignettes("TailorBayes")
+```
