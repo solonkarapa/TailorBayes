@@ -1,3 +1,4 @@
+
 #' Simulated logistic regression data.
 #'
 #'

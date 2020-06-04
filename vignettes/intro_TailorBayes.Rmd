@@ -19,7 +19,7 @@ This document refers to TailorBayes version `r packageVersion("TailorBayes")`.
 
 # Introduction 
 
-The package provides functions for tailored Bayesian modelling, a simple and widely applicable approach to incorporate misclassification costs into Bayesian inference. 
+The package provides functions for tailored Bayesian modelling, a flexible and widely applicable approach to incorporate misclassification costs into Bayesian inference. 
 
 Routinely, binary classifiers aim to minimise the expected classification error; that is the proportion of incorrect classifications. The disadvantage of this paradigm is to implicitly assume that all misclassification errors have equal costs. However, equality is but one choice, which may not be  appropriate. For example, in cancer diagnosis, a false negative (that is, misdiagnosing a cancer patient as healthy) could have more severe consequences than a false positive (that is, misdiagnosing a healthy patient with cancer); the latter may lead to extra medical costs and unnecessary patient anxiety but will not result in loss of life. On the contrary, in banking, a false positive (that is, giving a loan to a non-paying customer) has more severe consequences that a false negative (that is, refusing to give a loan to a paying customer); the latter will lead to a smaller loss of income (interest gained) but the former will result in bigger loss (the loan amount plus the interest). For these applications, a prioritised control of asymmetric classification errors is more appropriate.
 
@@ -46,20 +46,20 @@ We set the datapoint-specific weights as
     \label{weights}
 \end{equation}
 
-where $h$ is the quadratic loss (this is the default option, other options discussed later), $\pi_u(x_i)$ is the unweighted version of $\pi_w(x_i;\beta)$. Using this formulation the weights decrease with increasing distance from the target threshold. The hyperparameter $\lambda \ge 0$ is a "discounting factor" that controls the rate of that decrease. For $\lambda = 0$  we recover the standard logistic regression model. The target threshold, $t$ summarises the the costs and benefits of (mis-)classifications. 
+where $h$ is the quadratic loss (this is the default option, other options discussed later), $\pi_u(x_i)$ is the unweighted version of $\pi_w(x_i;\beta)$. Using this formulation the weights decrease with increasing distance from the target threshold. The hyperparameter $\lambda \ge 0$ is a "discounting factor" that controls the rate of that decrease. For $\lambda = 0$  we recover the standard logistic regression model. The target threshold, $t$, summarises the the costs and benefits of (mis-)classifications. 
 
-> Briefly, let $U$ denote an utility function that assigns a value to  each  of  the  four  possible  classifications  stating  exactly  how beneficial/costly each classification is. The four utilities associated with binary classification problems are: $U_{TP}$, $U_{FP}$, $U_{FN}$, $U_{TN}$ which are the utilities of a true positive, false positive, false negative and true negative prediction, respectively. We then define the target threshold, $t$ as:  
+> Briefly, let $U$ denote an utility function that assigns a value to  each  of  the  four  possible  classifications stating how costly/beneficial each (mis-)classification is. The four utilities associated with binary classification problems are: $U_{TP}$, $U_{FP}$, $U_{FN}$, $U_{TN}$ which are the utilities of a true positive, false positive, false negative and true negative prediction, respectively. We then define the target threshold, $t$ as:  
 
 \begin{equation}
     \begin{split}
-    t = \frac{U_{TN} - U_{FP}}{U_{TN} - U_{FP} + U_{TP} - U_{FN}}
+    t = \frac{U_{TN} - U_{FP}}{U_{TN} - U_{FP} + U_{TP} - U_{FN}} = = \frac{H}{H + B} = \frac{1}{1 + \frac{B}{H}},
         \label{target_threshold}
     \end{split}
 \end{equation}  
 
 > This equation therefore tells us that the target threshold is informative of how the relative harms of false positive and false negative results are weighted. It captures the relative cost of false positives  and  false  negatives  without having to explicitly specify them.
 
-To costruct the weights we need to specify the following ingredients: 
+To costruct the datapoint-specific weights, $w_i$, we need to specify the following ingredients: 
 
 - $t$, this depends on the decision maker’s preferences with respect to the relative costs of different misclassification errors. 
 
@@ -67,7 +67,7 @@ To costruct the weights we need to specify the following ingredients:
 
 - $\pi_u(x_i)$. We achieve this by a two-stage procedure. First, the distance is measured using an estimate of $\pi_u(x_i)$, $\hat{\pi}_u(x_i)$, which
 can be compared with $t$ to yield weights. This estimate could be based on any classification
-method: we use standard unweighted frequentist logistic regression below but any other classifiers that outputs probability estimates will do. 
+method: we use standard unweighted frequentist logistic regression below but any other classifier that outputs probability estimates will do. 
 
 To finish the formulation of the model we assume independent normal prior distribution for each element of $\beta$, ie. $p(\beta) = \mathcal{N}(\mu, \sigma^2I)$. Then, the TB posterior is proportional to
 
@@ -142,7 +142,7 @@ The package allows for flexibility on the construction of the weights, $w_i$, an
 
 ## Custom weights
 
-The construction weights is controlled by the `distance_measure` and `epsilon` arguments. Together they allow the specification of a family of weighting functions, termed $\epsilon$-insensitive functions [@vapnik1998statistical]. The family is defined as
+The construction weights is controlled by the `distance_measure` and `epsilon` arguments. Together they allow the specification of a family of weighting functions, $h$, termed $\epsilon$-insensitive functions [@vapnik1998statistical]. The family is defined as
 
 $$ h(\pi_u(x), t, \epsilon) = (\pi_u(x) - t)^2_{\epsilon}$$
 
@@ -164,13 +164,13 @@ Another option is to choose the $\epsilon$-insensitive absolute loss (`distance_
 $$ h(\pi_u(x), t, \epsilon) = |\pi_u(x) - t|_{\epsilon} $$
 
 The default is the squared loss with $\epsilon = 0$, i.e
-$h(\pi_u(x), t, \epsilon) = (\pi_u(x) - t)^2$. 
+$h(\pi_u(x), t, \epsilon) := (\pi_u(x) - t)^2$. 
 
 ### Further customisation
 
 In addition, the user can define an arbitrary weighting function, $h$. This is done with using the `h_function` argument. An example is given below. For illustration purposes, we simply re-define the square and absolute losses. 
 
-In order to avoid using either global variables or $\dots$ arguments, we use the function factory pattern (Chapter 10, @wickham_advanced, and [Geyer, 2020 Appendix A](https://cran.r-project.org/web/packages/mcmc/vignettes/demo.pdf)). This is a robust way to pass information to a function being passed to another R function (a higher-order function). In our case, we want to pass information to the weighting function which subsequently will be used by 
+We use the function factory pattern  to define the weighting function (Chapter 10, @wickham_advanced, and [Geyer, 2020 Appendix A](https://cran.r-project.org/web/packages/mcmc/vignettes/demo.pdf)). This avoids usings either global variables or $\dots$ arguments. It is a more robust way to pass information to a function being passed to another R function (a higher-order function). In our case, we want to pass information to the weighting function which subsequently will be used by 
 `metrop_tailor()` (the higher-order function) when sampling from the  posterior. We can define the custom weighting function as 
 
 ```{r}
@@ -183,7 +183,7 @@ my_h_function <- function(indicator) function(pi_u, t){
 }
 ```
 
-This allows more flexibility since the user can specify any number of extra arguments in the fist function call. The second should always be as specified above. 
+This allows more flexibility since the user can specify any number of extra arguments in the first function call. The second should always be as specified above. 
 The user then simply uses the `h_function` argument of `metrop_tailor()`, specifying any additional arguments as well. For instance,  
 
 ```{r}
