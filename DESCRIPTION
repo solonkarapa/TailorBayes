@@ -2,6 +2,7 @@ Package: TailorBayes
 Type: Package
 Title: Markov Chain Monte Carlo for Tailored Bayesian inference
 Version: 0.1.0
+Date: 2020-06-05
 Authors@R: person("Solon", "Karapanagiotis", email = "Solon.karapanagiotis@mrc-bsu.cam.ac.uk",
   role = c("aut", "cre"))
 Maintainer: The package maintainer <yourself@somewhere.net>
