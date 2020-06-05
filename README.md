@@ -20,7 +20,7 @@ or similar ones.
 
 ``` r
 # Install from GitHub
-devtools::install_github("solonkarapa/TailorBayes")
+devtools::install_github("solonkarapa/TailorBayes", build_vignettes = TRUE)
 ```
 
 ## Usage
