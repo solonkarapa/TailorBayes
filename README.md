@@ -13,7 +13,8 @@ Contains functions to perform Tailored Bayesian inference for binary
 classification. Markov Chain Monte Carlo (MCMC) is used to simulate the
 posterior. The output is a ‘coda’ mcmc object that can then be
 summarised using the
-[coda](https://cran.r-project.org/web/packages/coda/index.html) package.
+[coda](https://cran.r-project.org/web/packages/coda/index.html) package
+or similar ones.
 
 ## Installation
 
@@ -42,4 +43,10 @@ A vignette on using the package
 ``` r
 # Run to see the vignette
 browseVignettes("TailorBayes")
+```
+
+Cite as
+
+``` r
+citation("TailorBayes")
 ```

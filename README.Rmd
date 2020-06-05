@@ -52,7 +52,7 @@ browseVignettes("TailorBayes")
 
 Cite as 
 
-```{r}
+```{r, eval = F}
 citation("TailorBayes")
 ```
 
