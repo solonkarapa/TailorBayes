@@ -50,4 +50,10 @@ A vignette on using the package
 browseVignettes("TailorBayes")
 ```
 
+Cite as 
+
+```{r}
+citation("TailorBayes")
+```
+
 
