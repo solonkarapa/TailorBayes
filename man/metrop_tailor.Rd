@@ -87,15 +87,12 @@ Random walk Metropolis algorithm for Tailored Bayesian inference.
   which specifies a linear predictor for response.
 
   \code{metrop_tailor()} simulates from the posterior distribution of a tailored logistic regression model
-  using a random walk Metropolis algorithm. The model takes the following form:
+  using a random walk Metropolis algorithm. The objective loss takes the following form:
 
-  \deqn{y_i \sim \mathcal{B}ernoulli(\pi_i)}
+  \deqn{\ell(y_i, x^T_i \beta) = -(\pi_w(x_i;\beta))^{y_i} (1 - \pi_w(x_i;\beta))^{1-y_i},}
 
-   Where the inverse link function:
-
-  \deqn{\pi_i = (\frac{\exp(x_i'\beta)}{1 + \exp(x_i'\beta)})^{w_i}}
-
-  where \eqn{w_i = \exp - \{ \lambda h(pi_u, t, \epsilon) \} } and \eqn{i = 1, \ldots, n} (the sample size).
+  where \eqn{\pi_w(x_i;\beta) = (\exp \{ {x^T_i \beta} \}/ 1 + \exp\{ {x^T_i \beta}\})^{w_i}},
+  \eqn{w_i = \exp - \{ \lambda h(pi_u, t, \epsilon) \} } and \eqn{i = 1, \ldots, n} (the sample size).
   The function \eqn{h()} is family  of \eqn{\epsilon}-insensitive functions, allowing customization using
   the \code{distance_measure} and \code{epsilon} arguments. The default function \eqn{h()} is
   the squared error with \eqn{\epsilon = 0}, i.e
@@ -113,7 +110,8 @@ Random walk Metropolis algorithm for Tailored Bayesian inference.
 \subsection{Custom \code{h_function} and \code{user_prior_density}}{
  Both use the function factory pattern \insertCite{@see Chapter 10, @wickham_advanced}{TailorBayes}.
  This is to avoid using either global variables or `\dots` arguments.
- See Examples below and \href{https://cran.r-project.org/web/packages/mcmc/vignettes/demo.pdf}{Geyer, 2020 Appendix A}.
+ See examples below and \href{https://cran.r-project.org/web/packages/mcmc/vignettes/demo.pdf}{Geyer, 2020 Appendix A},
+ and the package vignette.
  }
 }
 \examples{
