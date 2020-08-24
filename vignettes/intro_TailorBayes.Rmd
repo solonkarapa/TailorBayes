@@ -33,7 +33,7 @@ We utilise data $D = \{ (y_i, x_i)  :i=  1, \dots, n \}$ $(X, Y) \in \mathbb{R}^
 We use a generalised version of the logistic loss 
 
 \begin{equation}
-   \ell(y_i, x^T_i \beta) = -(\pi_w(x_i;\beta))^{y_i} (1- \pi_w(x_i;\beta))^{1-y_i},
+   \ell_{w_i}(y_i, x^T_i \beta) = -(\pi_w(x_i;\beta))^{y_i} (1- \pi_w(x_i;\beta))^{1-y_i},
    \label{hand_loss}
 \end{equation}
 
@@ -48,7 +48,7 @@ We set the datapoint-specific weights as
 
 where $h$ is the quadratic loss (this is the default option, other options are discussed later), $\pi_u(x_i)$ is the unweighted version of $\pi_w(x_i;\beta)$. Using this formulation the weights decrease with increasing distance from the target threshold, $t$. The hyperparameter $\lambda \ge 0$ is a "discounting factor" that controls the rate of that decrease. For $\lambda = 0$  we recover the standard logistic regression model. The target threshold, $t$, summarises the the costs and benefits of (mis-)classifications. 
 
-> Briefly, let $U$ denote an utility function that assigns a value to  each  of  the  four  possible classifications stating how costly/beneficial each (mis-)classification is. The four utilities associated with binary classification problems are: $U_{TP}$, $U_{FP}$, $U_{FN}$, $U_{TN}$ which are the utilities of a true positive, false positive, false negative and true negative classification, respectively. We then define the target threshold, $t$, as:  
+> Briefly, let $U$ denote an utility function that assigns a value to  each  of  the  four  possible classifications stating how costly/beneficial each (mis-)classification is. The four utilities associated with binary classification problems are: $U_{TP}$, $U_{FP}$, $U_{FN}$, $U_{TN}$ which are the utilities of a true positive, false positive, false negative and true negative classification, respectively. Then, the target threshold, $t$, is defined as:  
 
 \begin{equation}
     \begin{split}
@@ -71,7 +71,7 @@ method: we use standard unweighted frequentist logistic regression below but any
 
 To finish the formulation of the model we assume independent normal prior distribution for each element of $\beta$, ie. $p(\beta) = \mathcal{N}(\mu, \sigma^2I)$. Then, the TB posterior is proportional to
 
-$$p(\beta|D) \propto -\sum_{i=1}^{n} \log(\ell(y_i, x^T_i \beta)) p(\beta).$$
+$$p(\beta|D) \propto -\sum_{i=1}^{n} \log(\ell_{w_i}(y_i, x^T_i \beta)) p(\beta).$$
 Since this posterior is not analytically tractable, we use Markov Chain Monte Carlo (MCMC) for inference, using the `metrop_tailor()` function. 
 
 # Data
