@@ -1,9 +1,9 @@
 ---
-title: "Introduction to TailorBayes"
+title: "Introduction to TailoredBayes"
 bibliography: ./references_vignette.bib
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Intro_TailorBayes}
+  %\VignetteIndexEntry{Intro_TailoredBayes}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-This document refers to TailorBayes version `r packageVersion("TailorBayes")`.
+This document refers to TailoredBayes version `r packageVersion("TailoredBayes")`.
 
 # Introduction 
 
@@ -23,7 +23,7 @@ The package provides functions for tailored Bayesian modelling, a flexible and w
 
 Routinely, binary classifiers aim to minimise the expected classification error; that is the proportion of incorrect classifications. The disadvantage of this paradigm is to implicitly assume that all misclassification errors have equal costs. However, equality is but one choice, which may not be appropriate in many settings. For example, in cancer diagnosis, a false negative (that is, misdiagnosing a cancer patient as healthy) could have more severe consequences than a false positive (that is, misdiagnosing a healthy patient with cancer); the latter may lead to extra medical costs and unnecessary patient anxiety but will not result in loss of life. On the contrary, in banking, a false positive (that is, giving a loan to a non-paying customer) has more severe consequences that a false negative (that is, refusing to give a loan to a paying customer); the latter will lead to a smaller loss of income (interest gained) but the former will result in bigger loss (the loan amount plus the interest). For these applications, a prioritised control of asymmetric classification costs is more appropriate.
 
-Tailor Bayes (TB), allows for the incorporation of misclassification costs into Bayesian modelling. In a nutshell, this is done by introducing datapoint-specific weights which are used to downweight each datapoint's likelihood contribution when fitting the model.
+Tailored Bayes (TB), allows for the incorporation of misclassification costs into Bayesian modelling. In a nutshell, this is done by introducing datapoint-specific weights which are used to downweight each datapoint's likelihood contribution when fitting the model.
 
 
 # The model
@@ -109,7 +109,7 @@ data_train <- data_split$SAMP2
 This is the main function of the package. It implements a random walk MCMC to sample from the TB posterior [@brooks2011handbook]. At a high level, the function needs as input the data and the ingredients for the construction of the weights (bullet points above).
 
 ```{r setup}
-library(TailorBayes)
+library(TailoredBayes)
 ```
 
 First, we will use the design set to estimate $\pi_u(x_i)$. I use frequentist logistic regression for this. 

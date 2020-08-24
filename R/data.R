@@ -13,7 +13,7 @@
 #' }
 #'
 #' @examples
-#' library(TailorBayes)
+#' library(TailoredBayes)
 #' data(out)
 #' fit <- glm(y ~ x1 + x2, family = binomial, data = out)
 #' summary(fit)
