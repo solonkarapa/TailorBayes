@@ -32,7 +32,7 @@
 #' @param n_mcmc The number of Metropolis iterations for the sampler.
 #'
 #' @param tune Scalar to achieve optimal acceptance rate. Default is 2.38;
-#' \insertCite{@see Chapter 4, @brooks2011handbook}{TailorBayes}. Make sure that the acceptance rate is satisfactory
+#' \insertCite{@see Chapter 4, @brooks2011handbook}{TailoredBayes}. Make sure that the acceptance rate is satisfactory
 #' (typically between 0.20 and 0.5) before using the posterior sample for inference.
 #'
 #' @param iter_adapt The number of iterations between warm-up and burn-in that the proposal is tuned. Default is 200.

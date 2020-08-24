@@ -1,6 +1,6 @@
 
 
-library(TailorBayes)
+library(TailoredBayes)
 
 # test for likelihood, prior, posterior
 

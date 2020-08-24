@@ -1,4 +1,4 @@
-Package: TailorBayes
+Package: TailoredBayes
 Type: Package
 Title: Markov Chain Monte Carlo for Tailored Bayesian inference
 Version: 0.1.0
@@ -8,7 +8,7 @@ Authors@R: person("Solon", "Karapanagiotis", email = "Solon.karapanagiotis@mrc-b
 Maintainer: The package maintainer <yourself@somewhere.net>
 Description: 
     Contains functions to perform Tailored Bayesian inference for binary classification.   Markov Chain Monte Carlo (MCMC) is used to simulate the posterior. The output is a 'coda' mcmc object that can then be summarised using the 'coda' package. 
-URL: https://github.com/solonkarapa/TailorBayes
+URL: https://github.com/solonkarapa/TailoredBayes
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

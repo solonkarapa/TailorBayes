@@ -5,7 +5,7 @@
 
 # test output
 
-library(TailorBayes)
+library(TailoredBayes)
 
 #tolerance <- 1e-10
 

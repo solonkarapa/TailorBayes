@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# TailorBayes
+# TailoredBayes
 
 <!-- badges: start -->
 
@@ -20,7 +20,7 @@ or similar ones.
 
 ``` r
 # Install from GitHub
-devtools::install_github("solonkarapa/TailorBayes", build_vignettes = TRUE)
+devtools::install_github("solonkarapa/TailoredBayes", build_vignettes = TRUE)
 ```
 
 ## Usage
@@ -28,7 +28,7 @@ devtools::install_github("solonkarapa/TailorBayes", build_vignettes = TRUE)
 Get started with
 
 ``` r
-library(TailorBayes)
+library(TailoredBayes)
 ```
 
 The main function of the package is `metrop_tailor()`
@@ -42,11 +42,11 @@ A vignette on using the package
 
 ``` r
 # Run to see the vignette
-browseVignettes("TailorBayes")
+browseVignettes("TailoredBayes")
 ```
 
 Cite as
 
 ``` r
-citation("TailorBayes")
+citation("TailoredBayes")
 ```

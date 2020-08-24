@@ -3,7 +3,7 @@
 
 # tests for ESS function
 
-library(TailorBayes)
+library(TailoredBayes)
 
 tolerance <- 1e-4
 

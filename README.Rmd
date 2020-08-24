@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 ```
 
 
-# TailorBayes
+# TailoredBayes
 
 <!-- badges: start -->
 [![Build Status](https://travis-ci.org/solonkarapa/TailorBayes.svg?branch=master)](https://travis-ci.org/solonkarapa/TailorBayes)
@@ -25,7 +25,7 @@ Contains functions to perform Tailored Bayesian inference for binary classificat
 
 ```{r, eval = FALSE}
 # Install from GitHub
-devtools::install_github("solonkarapa/TailorBayes", build_vignettes = TRUE)
+devtools::install_github("solonkarapa/TailoredBayes", build_vignettes = TRUE)
 ```
 
 ## Usage
@@ -33,7 +33,7 @@ devtools::install_github("solonkarapa/TailorBayes", build_vignettes = TRUE)
 Get started with
 
 ```{r, eval = FALSE}
-library(TailorBayes)
+library(TailoredBayes)
 ```
 
 The main function of the package is `metrop_tailor()`
@@ -47,13 +47,13 @@ A vignette on using the package
 
 ```{r, eval = FALSE}
 # Run to see the vignette
-browseVignettes("TailorBayes")
+browseVignettes("TailoredBayes")
 ```
 
 Cite as 
 
 ```{r, eval = F}
-citation("TailorBayes")
+citation("TailoredBayes")
 ```
 
 

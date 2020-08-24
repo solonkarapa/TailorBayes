@@ -1,4 +1,4 @@
 library(testthat)
-library(TailorBayes)
+library(TailoredBayes)
 
-test_check("TailorBayes")
+test_check("TailoredBayes")
