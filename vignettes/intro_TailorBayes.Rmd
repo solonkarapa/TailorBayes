@@ -23,8 +23,7 @@ The package provides functions for tailored Bayesian modelling, a flexible and w
 
 Routinely, binary classifiers aim to minimise the expected classification error; that is the proportion of incorrect classifications. The disadvantage of this paradigm is to implicitly assume that all misclassification errors have equal costs. However, equality is but one choice, which may not be appropriate in many settings. For example, in cancer diagnosis, a false negative (that is, misdiagnosing a cancer patient as healthy) could have more severe consequences than a false positive (that is, misdiagnosing a healthy patient with cancer); the latter may lead to extra medical costs and unnecessary patient anxiety but will not result in loss of life. On the contrary, in banking, a false positive (that is, giving a loan to a non-paying customer) has more severe consequences that a false negative (that is, refusing to give a loan to a paying customer); the latter will lead to a smaller loss of income (interest gained) but the former will result in bigger loss (the loan amount plus the interest). For these applications, a prioritised control of asymmetric classification costs is more appropriate.
 
-Tailored Bayes (TB), allows for the incorporation of misclassification costs into Bayesian modelling. In a nutshell, this is done by introducing datapoint-specific weights which are used to downweight each datapoint's likelihood contribution when fitting the model.
-
+Tailored Bayes (TB), allows for the incorporation of misclassification costs into Bayesian modelling. In a nutshell, this is done by introducing datapoint-specific weights which are used to downweight each datapoint's likelihood/loss contribution when fitting the model.
 
 # The model
 
@@ -37,7 +36,7 @@ We use a generalised version of the logistic loss
    \label{hand_loss}
 \end{equation}
 
-where $\pi_w(x_i;\beta)=  (\exp \{ {x^T_i \beta} \}/ 1 + \exp\{ {x^T_i \beta}\})^{w_i}$ and $w_i \in[0,1]$ are datapoint-specific weights. We recover the standard logistic loss by setting $w_i = 1$ for all $i = 1, \dots ,n$. Note that we specify a linear function, ie $x^T_i \beta$, where $\beta$ is a $d + 1$ dimensional vector of regression coefficients. Hence, our objective is to learn $\beta$.
+where $\pi_w(x_i;\beta)=  (\exp \{ {x^T_i \beta} \}/ 1 + \exp\{ {x^T_i \beta}\})^{w_i}$ and $w_i \in[0,1]$ are datapoint-specific weights. We recover the standard logistic loss by setting $w_i = 1$ for all $i = 1, \dots ,n$. Note that we specify a linear function, ie. $x^T_i \beta$, where $\beta$ is a $d + 1$ dimensional vector of regression coefficients. Hence, our objective is to learn $\beta$.
 
 We set the datapoint-specific weights as 
 
@@ -52,12 +51,12 @@ where $h$ is the quadratic loss (this is the default option, other options are d
 
 \begin{equation}
     \begin{split}
-    t = \frac{U_{TN} - U_{FP}}{U_{TN} - U_{FP} + U_{TP} - U_{FN}} = = \frac{H}{H + B} = \frac{1}{1 + \frac{B}{H}},
+    t = \frac{U_{TN} - U_{FP}}{U_{TN} - U_{FP} + U_{TP} - U_{FN}} = \frac{H}{H + B} = \frac{1}{1 + \frac{B}{H}}
         \label{target_threshold}
     \end{split}
 \end{equation}  
 
-> This equation therefore tells us that the target threshold is informative of how the relative harms of false positive and false negative results are weighted. It captures the relative cost of false positives  and  false  negatives  without having to explicitly specify them.
+> This equation therefore tells us that the target threshold is informative of how the relative harms of false positive and false negative results are weighted. It captures the relative cost of false positives  and  false  negatives  without having to explicitly specify them. We only need to specify the ratio $\frac{B}{H}$. See paper for details.
 
 To costruct the datapoint-specific weights, $w_i$, we need to specify the following ingredients: 
 
@@ -106,13 +105,13 @@ data_train <- data_split$SAMP2
 ```
 
 # `metrop_tailor()`
-This is the main function of the package. It implements a random walk MCMC to sample from the TB posterior [@brooks2011handbook]. At a high level, the function needs as input the data and the ingredients for the construction of the weights (bullet points above).
+This is the main function of the package. It implements a random walk MCMC to sample from the TB posterior [@brooks2011handbook]. At a high level, the function needs as input the data and the ingredients for the construction of the weights (the bullet points above).
 
 ```{r setup}
 library(TailoredBayes)
 ```
 
-First, we will use the design set to estimate $\pi_u(x_i)$. I use frequentist logistic regression for this. 
+First, we will use the design dataset to estimate $\pi_u(x_i)$. I use frequentist logistic regression for this. 
 
 ```{r}
 # fit the model
@@ -157,13 +156,13 @@ where we denote
 \end{equation}
 
 This is the $\epsilon$-insensitive squared loss. 
-The $\epsilon$-insensitivity  arises  from  the  fact  that  the  loss  is  equal  to  0  if  the  discrepancy  between  the predicted  probability $\pi_u(x)$  and  the  target  threshold $t$ is  less  than $\epsilon$.   In  other  words,  we  do  not  care about the distance as long as it is less than $\epsilon$,  but will not accept any deviation larger than this. 
+The $\epsilon$-insensitivity  arises  from  the  fact  that  the  loss  is  equal  to  0  if  the  discrepancy  between  the predicted  probability $\pi_u(x)$  and  the  target  threshold $t$ is  less  than $\epsilon$.   In  other  words,  we do  not  care about the distance as long as it is less than $\epsilon$,  but will not accept any deviation larger than this. 
 
 Another option is to choose the $\epsilon$-insensitive absolute loss (`distance_measure = "absolute"`), defined as 
 
 $$ h(\pi_u(x), t, \epsilon) = |\pi_u(x) - t|_{\epsilon} $$
 
-The default is the squared loss with $\epsilon = 0$, i.e
+The default setting is the squared loss with $\epsilon = 0$, i.e.
 $h(\pi_u(x), t, \epsilon) := (\pi_u(x) - t)^2$. 
 
 ### Further customisation
@@ -183,7 +182,7 @@ my_h_function <- function(indicator) function(pi_u, t){
 }
 ```
 
-This allows more flexibility since the user can specify any number of extra arguments in the first function call. The second should always be as specified above. 
+This allows more flexibility since the user can specify any number of extra arguments in the first function call. The second function call should always be as specified above. 
 The user then simply uses the `h_function` argument of `metrop_tailor()`, specifying any additional arguments as well. For instance,  
 
 ```{r}
@@ -242,7 +241,7 @@ fit_tailor_cauchy_2 <- metrop_tailor(y ~ x1 + x2,
                                      user_prior_density = logpriorfun(location = 0, scale = 5))
 ```
 
-To see the difference between the two posteriors, I use the [ggmcmc](https://cran.r-project.org/web/packages/ggmcmc/ggmcmc.pdf) package for post-processing. The plot shows the highest posterior density interval for each parameter under the two priors. 
+To see the difference between the two posteriors, I use the [ggmcmc](https://cran.r-project.org/web/packages/ggmcmc/ggmcmc.pdf) package for post-processing. The plot shows the highest posterior density intervals for each parameter under the two priors. 
 
 ```{r, warning=F, message=F}
 library(ggmcmc)
