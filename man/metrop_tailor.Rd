@@ -108,7 +108,7 @@ Random walk Metropolis algorithm for Tailored Bayesian inference.
   }
 
 \subsection{Custom \code{h_function} and \code{user_prior_density}}{
- Both use the function factory pattern \insertCite{@see Chapter 10, @wickham_advanced}{TailorBayes}.
+ Both use the function factory pattern \insertCite{@see Chapter 10, @wickham_advanced}{TailoredBayes}.
  This is to avoid using either global variables or `\dots` arguments.
  See examples below and \href{https://cran.r-project.org/web/packages/mcmc/vignettes/demo.pdf}{Geyer, 2020 Appendix A},
  and the package vignette.
